@@ -17,14 +17,14 @@ ProcInfo ends
 
 .data
 szCaption db "ethical.blue", 0
-szText db "This is sample procedure call.", 0
+szText db "This is sample procedure.", 0
 oldProtect dd 0
 procInfo1 ProcInfo <0,0,0>
 
 .code
 MyProc1 proc
     mov rax, offset _ERASE_START
-    mov [procInfo1.BodyStart], rax
+    mov [procInfo1.bodyStart], rax
 
     push rbp
     mov rbp, rsp
@@ -44,40 +44,36 @@ _ERASE_END:
     mov rcx, offset _ERASE_END
     dec rcx
     mov [procInfo1.bodyEnd], rcx
-    sub rcx, qword ptr [procInfo1.BodyStart]
+    sub rcx, qword ptr [procInfo1.bodyStart]
     mov [procInfo1.bodySize], rcx
     ret
 MyProc1 endp
 
 Main proc
-    ;sample procedure call
+    ;sample procedure
     sub rsp, 28h
     call MyProc1
-    add rsp, 28h
     
     ;get write access to code block
-    sub rsp, 28h
     mov r9, offset oldProtect 
     mov r8, PAGE_EXECUTE_READWRITE
     mov rdx, [procInfo1.bodySize]
-    mov rcx, qword ptr [procInfo1.BodyStart]
+    mov rcx, qword ptr [procInfo1.bodyStart]
     call VirtualProtect
-    add rsp, 28h
     
     ;erase procedure body (fill with NOPs)
-    mov rdx, [procInfo1.BodyStart]
+    mov rdx, [procInfo1.bodyStart]
     xor rcx, rcx
-    _loop1:
+    @@:
     mov byte ptr [rdx + rcx * sizeof byte], 90h
     inc rcx
     cmp rcx, [procInfo1.bodySize]
-    jle _loop1
+    jle @b
     
-    ;sample procedure call (after erasing)
-    sub rsp, 28h
+    ;sample procedure (after erasing)
     call MyProc1
+
     add rsp, 28h
-    
     ret
 Main endp
 end
