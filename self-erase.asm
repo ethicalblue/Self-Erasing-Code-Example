@@ -5,6 +5,7 @@
 
 extrn MessageBoxA : proc
 extrn VirtualProtect : proc
+extrn ExitProcess : proc
 
 .const
 PAGE_EXECUTE_READWRITE equ 040h
@@ -73,7 +74,7 @@ Main proc
     ;sample procedure (after erasing)
     call MyProc1
 
-    add rsp, 28h
-    ret
+    xor rcx, rcx
+    call ExitProcess
 Main endp
 end
